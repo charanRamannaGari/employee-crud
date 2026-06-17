@@ -13,9 +13,11 @@ function EmployeeList() {
 
   const [editEmployee, setEditEmployee] = useState(null);
   const [searchText, setSearchText] = useState('');
-
-  // NEW: tracks which page we're on
   const [currentPage, setCurrentPage] = useState(1);
+
+  // NEW: sort state -> which column, and which direction
+  const [sortField, setSortField] = useState(null);     // 'name' | 'department' | 'salary' | null
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' | 'desc'
 
   // ADD
   const handleAdd = (formData) => {
@@ -46,6 +48,19 @@ function EmployeeList() {
     setEmployees(employees.filter(emp => emp.id !== id));
   };
 
+  // NEW: called when a column header is clicked
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Same column clicked again -> toggle direction
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column -> default to ascending
+      setSortField(field);
+      setSortDirection('asc');
+    }
+    setCurrentPage(1); // reset to page 1 whenever sort changes
+  };
+
   // Filter first
   const filteredEmployees = employees.filter(emp => {
     const text = searchText.toLowerCase();
@@ -55,12 +70,30 @@ function EmployeeList() {
     );
   });
 
-  // NEW: Pagination math
-  const totalPages = Math.ceil(filteredEmployees.length / PAGE_SIZE);
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const paginatedEmployees = filteredEmployees.slice(startIndex, startIndex + PAGE_SIZE);
+  // NEW: Sort the filtered results (creates a new array, doesn't mutate original)
+  const sortedEmployees = [...filteredEmployees].sort((a, b) => {
+    if (!sortField) return 0; // no sorting applied
 
-  // When search text changes, always reset to page 1
+    let valA = a[sortField];
+    let valB = b[sortField];
+
+    // String comparison for name/department, numeric for salary
+    if (typeof valA === 'string') {
+      valA = valA.toLowerCase();
+      valB = valB.toLowerCase();
+      if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    } else {
+      return sortDirection === 'asc' ? valA - valB : valB - valA;
+    }
+  });
+
+  // Pagination math (applied AFTER sorting)
+  const totalPages = Math.ceil(sortedEmployees.length / PAGE_SIZE);
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedEmployees = sortedEmployees.slice(startIndex, startIndex + PAGE_SIZE);
+
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
     setCurrentPage(1);
@@ -69,6 +102,14 @@ function EmployeeList() {
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
+  };
+
+  // NEW: renders the sort arrow icon for a given column
+  const renderSortIcon = (field) => {
+    if (sortField !== field) return <span className="sort-icon sort-icon-idle">⇕</span>;
+    return sortDirection === 'asc'
+      ? <span className="sort-icon">▲</span>
+      : <span className="sort-icon">▼</span>;
   };
 
   return (
@@ -91,7 +132,7 @@ function EmployeeList() {
           />
         </div>
 
-        {filteredEmployees.length === 0 ? (
+        {sortedEmployees.length === 0 ? (
           <p className="empty-state">
             {searchText
               ? `No employees match "${searchText}"`
@@ -103,9 +144,15 @@ function EmployeeList() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Name</th>
-                  <th>Department</th>
-                  <th>Salary</th>
+                  <th className="sortable" onClick={() => handleSort('name')}>
+                    Name {renderSortIcon('name')}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort('department')}>
+                    Department {renderSortIcon('department')}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort('salary')}>
+                    Salary {renderSortIcon('salary')}
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -129,7 +176,6 @@ function EmployeeList() {
               </tbody>
             </table>
 
-            {/* NEW: Pagination controls - only show if more than 1 page */}
             {totalPages > 1 && (
               <div className="pagination">
                 <button
@@ -163,7 +209,7 @@ function EmployeeList() {
         )}
 
         <p className="result-count">
-          Showing {paginatedEmployees.length} of {filteredEmployees.length} employees
+          Showing {paginatedEmployees.length} of {sortedEmployees.length} employees
           {totalPages > 1 && ` — Page ${currentPage} of ${totalPages}`}
         </p>
       </div>

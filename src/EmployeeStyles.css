@@ -254,3 +254,24 @@ body {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ============ Sortable Columns ============ */
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.sortable:hover {
+  background-color: #e5e7eb;
+}
+
+.sort-icon {
+  font-size: 11px;
+  color: #2563eb;
+  margin-left: 4px;
+}
+
+.sort-icon-idle {
+  color: #9ca3af;
+}
