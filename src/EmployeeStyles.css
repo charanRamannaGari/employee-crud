@@ -190,3 +190,30 @@ body {
   color: #6b7280;
   text-align: right;
 }
+
+/* ============ Form Validation ============ */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 150px;
+}
+
+.form-field input {
+  width: 100%;
+}
+
+.input-error {
+  border-color: #dc2626 !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 2px;
+}
