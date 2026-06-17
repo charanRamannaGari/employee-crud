@@ -217,3 +217,40 @@ body {
   margin-top: 4px;
   margin-left: 2px;
 }
+
+/* ============ Pagination ============ */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-page {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #2563eb;
+}
+
+.btn-page.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+  font-weight: 600;
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

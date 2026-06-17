@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import EmployeeForm from './EmployeeForm';
 
+const PAGE_SIZE = 5; // employees per page
+
 function EmployeeList() {
 
   const [employees, setEmployees] = useState([
@@ -10,14 +12,15 @@ function EmployeeList() {
   ]);
 
   const [editEmployee, setEditEmployee] = useState(null);
-
-  // NEW: search text state
   const [searchText, setSearchText] = useState('');
+
+  // NEW: tracks which page we're on
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ADD
   const handleAdd = (formData) => {
     const newEmployee = {
-      id: employees.length + 1,
+      id: employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1,
       name: formData.name,
       department: formData.department,
       salary: Number(formData.salary)
@@ -25,12 +28,10 @@ function EmployeeList() {
     setEmployees([...employees, newEmployee]);
   };
 
-  // EDIT - load employee into form
   const handleEdit = (emp) => {
     setEditEmployee(emp);
   };
 
-  // UPDATE - save edited employee
   const handleUpdate = (formData) => {
     const updated = employees.map(emp =>
       emp.id === editEmployee.id
@@ -41,12 +42,11 @@ function EmployeeList() {
     setEditEmployee(null);
   };
 
-  // DELETE
   const handleDelete = (id) => {
     setEmployees(employees.filter(emp => emp.id !== id));
   };
 
-  // NEW: filter employees by name OR department (case-insensitive)
+  // Filter first
   const filteredEmployees = employees.filter(emp => {
     const text = searchText.toLowerCase();
     return (
@@ -54,6 +54,22 @@ function EmployeeList() {
       emp.department.toLowerCase().includes(text)
     );
   });
+
+  // NEW: Pagination math
+  const totalPages = Math.ceil(filteredEmployees.length / PAGE_SIZE);
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedEmployees = filteredEmployees.slice(startIndex, startIndex + PAGE_SIZE);
+
+  // When search text changes, always reset to page 1
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
 
   return (
     <div>
@@ -70,7 +86,7 @@ function EmployeeList() {
             type="text"
             placeholder="Search by name or department..."
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={handleSearchChange}
             className="search-input"
           />
         </div>
@@ -82,42 +98,74 @@ function EmployeeList() {
               : 'No employees yet. Add one above!'}
           </p>
         ) : (
-          <table className="employee-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Salary</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEmployees.map(emp => (
-                <tr key={emp.id}>
-                  <td>{emp.id}</td>
-                  <td>{emp.name}</td>
-                  <td>{emp.department}</td>
-                  <td>{emp.salary}</td>
-                  <td>
-                    <button onClick={() => handleEdit(emp)} className="btn btn-edit">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(emp.id)} className="btn btn-delete">
-                      Delete
-                    </button>
-                  </td>
+          <>
+            <table className="employee-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Department</th>
+                  <th>Salary</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedEmployees.map(emp => (
+                  <tr key={emp.id}>
+                    <td>{emp.id}</td>
+                    <td>{emp.name}</td>
+                    <td>{emp.department}</td>
+                    <td>{emp.salary}</td>
+                    <td>
+                      <button onClick={() => handleEdit(emp)} className="btn btn-edit">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(emp.id)} className="btn btn-delete">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* NEW: Pagination controls - only show if more than 1 page */}
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="btn-page"
+                >
+                  Prev
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={page === currentPage ? 'btn-page active' : 'btn-page'}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="btn-page"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
 
-        {searchText && (
-          <p className="result-count">
-            Showing {filteredEmployees.length} of {employees.length} employees
-          </p>
-        )}
+        <p className="result-count">
+          Showing {paginatedEmployees.length} of {filteredEmployees.length} employees
+          {totalPages > 1 && ` — Page ${currentPage} of ${totalPages}`}
+        </p>
       </div>
     </div>
   );
