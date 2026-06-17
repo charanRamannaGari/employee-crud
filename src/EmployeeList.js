@@ -9,7 +9,10 @@ function EmployeeList() {
     { id: 3, name: 'Priya',  department: 'Finance', salary: 45000 },
   ]);
 
-  const [editEmployee, setEditEmployee] = useState(null); // tracks who is being edited
+  const [editEmployee, setEditEmployee] = useState(null);
+
+  // NEW: search text state
+  const [searchText, setSearchText] = useState('');
 
   // ADD
   const handleAdd = (formData) => {
@@ -35,13 +38,22 @@ function EmployeeList() {
         : emp
     );
     setEmployees(updated);
-    setEditEmployee(null); // clear edit mode
+    setEditEmployee(null);
   };
 
   // DELETE
   const handleDelete = (id) => {
     setEmployees(employees.filter(emp => emp.id !== id));
   };
+
+  // NEW: filter employees by name OR department (case-insensitive)
+  const filteredEmployees = employees.filter(emp => {
+    const text = searchText.toLowerCase();
+    return (
+      emp.name.toLowerCase().includes(text) ||
+      emp.department.toLowerCase().includes(text)
+    );
+  });
 
   return (
     <div>
@@ -52,9 +64,23 @@ function EmployeeList() {
       />
 
       <div className="card">
-        <h2>Employee List</h2>
-        {employees.length === 0 ? (
-          <p className="empty-state">No employees yet. Add one above!</p>
+        <div className="list-header">
+          <h2>Employee List</h2>
+          <input
+            type="text"
+            placeholder="Search by name or department..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="search-input"
+          />
+        </div>
+
+        {filteredEmployees.length === 0 ? (
+          <p className="empty-state">
+            {searchText
+              ? `No employees match "${searchText}"`
+              : 'No employees yet. Add one above!'}
+          </p>
         ) : (
           <table className="employee-table">
             <thead>
@@ -67,7 +93,7 @@ function EmployeeList() {
               </tr>
             </thead>
             <tbody>
-              {employees.map(emp => (
+              {filteredEmployees.map(emp => (
                 <tr key={emp.id}>
                   <td>{emp.id}</td>
                   <td>{emp.name}</td>
@@ -85,6 +111,12 @@ function EmployeeList() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {searchText && (
+          <p className="result-count">
+            Showing {filteredEmployees.length} of {employees.length} employees
+          </p>
         )}
       </div>
     </div>
