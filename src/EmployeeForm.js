@@ -38,32 +38,28 @@ function EmployeeForm({ onAdd, onUpdate, editEmployee }) {
   };
 
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div className="card">
       <h2>{editEmployee ? 'Edit Employee' : 'Add Employee'}</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="employee-form">
         <input
           name="name"
           placeholder="Name"
           value={form.name}
           onChange={handleChange}
-          style={{ marginRight: '10px', padding: '6px' }}
         />
         <input
           name="department"
           placeholder="Department"
           value={form.department}
           onChange={handleChange}
-          style={{ marginRight: '10px', padding: '6px' }}
         />
         <input
           name="salary"
           placeholder="Salary"
           value={form.salary}
           onChange={handleChange}
-          style={{ marginRight: '10px', padding: '6px' }}
         />
-        <button type="submit"
-          style={{ background: editEmployee ? 'blue' : 'green', color: 'white', padding: '6px 12px', border: 'none', cursor: 'pointer' }}>
+        <button type="submit" className={editEmployee ? 'btn btn-update' : 'btn btn-add'}>
           {editEmployee ? 'Update' : 'Add'}
         </button>
       </form>

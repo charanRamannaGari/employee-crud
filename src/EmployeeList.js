@@ -51,38 +51,42 @@ function EmployeeList() {
         editEmployee={editEmployee}
       />
 
-      <h2>Employee List</h2>
-      <table border="1" cellPadding="8">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Salary</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map(emp => (
-            <tr key={emp.id}>
-              <td>{emp.id}</td>
-              <td>{emp.name}</td>
-              <td>{emp.department}</td>
-              <td>{emp.salary}</td>
-              <td>
-                <button onClick={() => handleEdit(emp)}
-                  style={{ color: 'white', background: 'blue', border: 'none', padding: '4px 8px', cursor: 'pointer', marginRight: '6px' }}>
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(emp.id)}
-                  style={{ color: 'white', background: 'red', border: 'none', padding: '4px 8px', cursor: 'pointer' }}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="card">
+        <h2>Employee List</h2>
+        {employees.length === 0 ? (
+          <p className="empty-state">No employees yet. Add one above!</p>
+        ) : (
+          <table className="employee-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Salary</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map(emp => (
+                <tr key={emp.id}>
+                  <td>{emp.id}</td>
+                  <td>{emp.name}</td>
+                  <td>{emp.department}</td>
+                  <td>{emp.salary}</td>
+                  <td>
+                    <button onClick={() => handleEdit(emp)} className="btn btn-edit">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(emp.id)} className="btn btn-delete">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

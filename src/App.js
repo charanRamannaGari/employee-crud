@@ -1,9 +1,10 @@
 import EmployeeList from './EmployeeList';
+import './EmployeeStyles.css';
 
 function App() {
   return (
-   <div style={{ padding: '20px' }}>
-      <h1>Employee Management</h1>
+    <div className="app-container">
+      <h1 className="app-title">Employee Management</h1>
       <EmployeeList />
     </div>
   );
